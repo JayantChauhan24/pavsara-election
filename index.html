@@ -7,6 +7,11 @@
     <!-- Tailwind CSS & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Firebase SDKs (Live Cloud Sync Across All Phones) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <!-- Master Voter List File -->
     <script src="voters.js"></script>
     <style>
@@ -40,7 +45,10 @@
                 </div>
                 <div>
                     <h1 class="text-base md:text-lg font-black tracking-tight text-slate-900 leading-tight">ग्राम पंचायत पवसरा</h1>
-                    <p class="text-[11px] font-semibold text-emerald-700">विकास खंड: अगौता | जनपद: बुलंदशहर</p>
+                    <p class="text-[11px] font-semibold text-emerald-700 flex items-center gap-1.5">
+                        <span>अगौता | बुलंदशहर</span>
+                        <span id="cloudStatusBadge" class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-cloud mr-0.5"></i>लाइव क्लाउड</span>
+                    </p>
                 </div>
             </div>
             <!-- Discreet Lock Icon -->
@@ -113,6 +121,7 @@
                 </button>
             </div>
 
+            <!-- Search Mode 1: Serial -->
             <div id="searchBySerialSection" class="mt-4 space-y-4 text-left">
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">मतदाता क्रमांक (1 से 3905)</label>
@@ -123,10 +132,11 @@
                 </div>
             </div>
 
+            <!-- Search Mode 2: Name + Father -->
             <div id="searchByNameSection" class="hidden mt-4 space-y-3 text-left">
                 <div class="relative">
                     <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">
-                        मतदाता का नाम <span class="text-[10px] text-emerald-600 font-semibold">(English या हिंदी - संपादन योग्य)</span>
+                        मतदाता का नाम <span class="text-[10px] text-emerald-600 font-semibold">(English या हिंदी)</span>
                     </label>
                     <div class="flex gap-2">
                         <input type="text" id="inputSearchName" oninput="handleNameInput(this.value)" placeholder="उदा. kailash या कैलाश" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
@@ -137,7 +147,7 @@
 
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">
-                        पिता या पति का नाम <span class="text-[10px] text-emerald-600 font-semibold">(English या हिंदी - संपादन योग्य)</span>
+                        पिता या पति का नाम <span class="text-[10px] text-emerald-600 font-semibold">(English या हिंदी)</span>
                     </label>
                     <div class="flex gap-2">
                         <input type="text" id="inputSearchFather" placeholder="उदा. naubat singh या नौबत सिंह" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
@@ -245,7 +255,7 @@
                             <h3 class="text-xl font-black text-slate-900">कंट्रोल डैशबोर्ड</h3>
                             <span id="activeRoleBadge" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Admin Head</span>
                         </div>
-                        <p class="text-xs text-slate-500">पवसरा (बुलंदशहर)</p>
+                        <p class="text-xs text-slate-500">पवसरा (बुलंदशहर) | लाइव क्लाउड कनेक्टेड</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <button onclick="logoutAdmin()" class="text-xs bg-rose-50 text-rose-600 font-bold px-3 py-1.5 rounded-xl">लॉगआउट</button>
@@ -312,7 +322,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 4: Timer Settings & Stop Option -->
+                <!-- TAB 4: Timer Settings -->
                 <div id="timerTab" class="hidden space-y-4">
                     <div class="p-5 bg-slate-50 border rounded-2xl space-y-4">
                         <div class="flex justify-between items-center">
@@ -359,16 +369,15 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: MASTER PASSWORD MANAGER (HEAD ONLY - VIEW & UPDATE) -->
+                <!-- TAB 6: MASTER PASSWORD MANAGER (LIVE CLOUD SYNC) -->
                 <div id="securityTab" class="hidden space-y-4">
                     <div class="p-5 bg-slate-50 border rounded-2xl space-y-4">
                         <div>
                             <h4 class="text-xs font-black uppercase text-slate-800">पासवर्ड मैनेजर (केवल Admin Head देख व बदल सकता है)</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">यहाँ आपको Senior और Junior के पासवर्ड साफ़-साफ़ दिखेंगे। आप जब चाहें नया पासवर्ड सेट कर सकते हैं।</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">यहाँ आपको Senior और Junior के पासवर्ड साफ़-साफ़ दिखेंगे। आप जब भी बदलेंगे, दुनिया के हर नए फोन में अपने आप बदल जाएगा।</p>
                         </div>
 
                         <div class="space-y-3 pt-1">
-                            <!-- Head Password -->
                             <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
                                 <div class="flex justify-between items-center">
                                     <label class="text-xs font-bold text-slate-700">1. Admin Head (आपका पासवर्ड):</label>
@@ -380,7 +389,6 @@
                                 </div>
                             </div>
 
-                            <!-- Senior Password -->
                             <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
                                 <div class="flex justify-between items-center">
                                     <label class="text-xs font-bold text-slate-700">2. Senior Admin का वर्तमान पासवर्ड:</label>
@@ -392,7 +400,6 @@
                                 </div>
                             </div>
 
-                            <!-- Junior Password -->
                             <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
                                 <div class="flex justify-between items-center">
                                     <label class="text-xs font-bold text-slate-700">3. Junior Admin का वर्तमान पासवर्ड:</label>
@@ -415,20 +422,31 @@
         <p>ग्राम पंचायत पवसरा (बुलंदशहर) | निष्पक्ष एवं पारदर्शी जनमत सर्वेक्षण प्रणाली</p>
     </footer>
 
-    <!-- App Logic -->
+    <!-- App Logic with Firebase Realtime Database Integration -->
     <script>
         // ==========================================
-        // 🔒 मास्टर पासवर्ड सेटिंग्स (सभी डिवाइस के लिए स्थायी)
-        // नए फोन, नए डिवाइस या रिफ्रेश होने पर भी यही पासवर्ड हमेशा काम करेंगे!
+        // 🚀 आपकी Google Firebase Keys (लाइव क्लाउड सिंक)
         // ==========================================
-        const MASTER_PASSWORDS = {
-            head: "pavsara@head2026",    // Admin Head का स्थायी मास्टर पासवर्ड
-            senior: "snr@pavsara77",     // Senior Admin का स्थायी पासवर्ड
-            junior: "jnr@pavsara55"      // Junior Admin का स्थायी पासवर्ड
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwCtoFlp_SXQfN89bMEm7lNQE3gAaEc_c",
+            authDomain: "pavsara-election.firebaseapp.com",
+            databaseURL: "https://pavsara-election-default-rtdb.firebaseio.com",
+            projectId: "pavsara-election",
+            storageBucket: "pavsara-election.firebasestorage.app",
+            messagingSenderId: "766781591559",
+            appId: "1:766781591559:web:b508b3a25b1d49aab51aa2"
         };
 
-        // Persistent App State
-        let appState = JSON.parse(localStorage.getItem('pavsara_election_master_store')) || {
+        let dbRef = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            dbRef = firebase.database().ref('pavsara_master_poll_2026');
+        } catch(e) {
+            console.warn("Firebase Init Error:", e);
+        }
+
+        // App State
+        let appState = {
             isVotingActive: true,
             winnerDeclared: false,
             winnerAnnouncement: "",
@@ -441,29 +459,45 @@
                 { id: 4, name: "Lala (वर्तमान प्रधान)" }
             ],
             admins: {
-                head: { password: MASTER_PASSWORDS.head, active: true },
-                senior: { password: MASTER_PASSWORDS.senior, active: true, allowedByHead: false },
-                junior: { password: MASTER_PASSWORDS.junior, active: true, allowedByHead: false }
+                head: { password: "pavsara@head2026", active: true },
+                senior: { password: "snr@pavsara77", active: true, allowedByHead: false },
+                junior: { password: "jnr@pavsara55", active: true, allowedByHead: false }
             },
             votes: [],
             votedSerials: {}
         };
 
-        // Guarantee passwords never fall back to "admin"
-        if (!appState.admins.head.password || appState.admins.head.password === "admin") {
-            appState.admins.head.password = MASTER_PASSWORDS.head;
-        }
-        if (!appState.admins.senior.password || appState.admins.senior.password === "senior") {
-            appState.admins.senior.password = MASTER_PASSWORDS.senior;
-        }
-        if (!appState.admins.junior.password || appState.admins.junior.password === "junior") {
-            appState.admins.junior.password = MASTER_PASSWORDS.junior;
-        }
-
         let tempVoter = null;
         let loggedRole = null;
 
-        function saveState() { localStorage.setItem('pavsara_election_master_store', JSON.stringify(appState)); }
+        // Save Function (Automatically pushes to Firebase in real-time)
+        function saveState() {
+            if (dbRef) {
+                dbRef.set(appState);
+            }
+            localStorage.setItem('pavsara_backup_cache', JSON.stringify(appState));
+        }
+
+        // Live Realtime Listener (Updates every phone in the village instantly!)
+        if (dbRef) {
+            dbRef.on('value', (snapshot) => {
+                const cloudData = snapshot.val();
+                if (cloudData) {
+                    appState = cloudData;
+                    if(!appState.votes) appState.votes = [];
+                    if(!appState.votedSerials) appState.votedSerials = {};
+                    if(!appState.candidates) appState.candidates = [];
+                    
+                    renderPublicCandidates();
+                    renderWinnerBanner();
+                    updateTurnoutMeter();
+                    if (loggedRole) refreshAdminUI();
+                } else {
+                    // Initialize empty cloud database
+                    dbRef.set(appState);
+                }
+            });
+        }
 
         window.onload = function() {
             renderPublicCandidates();
@@ -473,7 +507,7 @@
         };
 
         function updateTurnoutMeter() {
-            const cast = appState.votes.length;
+            const cast = (appState.votes || []).length;
             const pct = ((cast / 3905) * 100).toFixed(1);
             document.getElementById('publicTurnoutText').innerText = `${pct}% (${cast} / 3905 वोट)`;
             document.getElementById('publicTurnoutBar').style.width = pct + '%';
@@ -574,7 +608,7 @@
         function renderPublicCandidates() {
             const grid = document.getElementById('candidatesGrid');
             grid.innerHTML = "";
-            appState.candidates.forEach(cand => {
+            (appState.candidates || []).forEach(cand => {
                 const c = document.createElement('div');
                 c.className = "card-3d p-4 rounded-2xl flex items-center justify-between";
                 c.innerHTML = `
@@ -623,7 +657,7 @@
                 return;
             }
 
-            if(appState.votedSerials[s]) {
+            if(appState.votedSerials && appState.votedSerials[s]) {
                 err.innerText = `चेतावनी: क्रमांक ${s} पर पहले ही मतदान हो चुका है! दुबारा अनुमति नहीं है।`;
                 err.classList.remove('hidden');
                 return;
@@ -761,7 +795,7 @@
                 return;
             }
 
-            if(appState.votedSerials[found.serial]) {
+            if(appState.votedSerials && appState.votedSerials[found.serial]) {
                 err.innerText = `चेतावनी: क्रमांक ${found.serial} (${found.name}) द्वारा पहले ही मतदान हो चुका है!`;
                 err.classList.remove('hidden');
                 return;
@@ -781,10 +815,14 @@
         }
 
         function castVote(cid) {
-            const cand = appState.candidates.find(c => c.id === cid);
+            const cand = (appState.candidates || []).find(c => c.id === cid);
             if(confirm(`क्या आप निश्चित रूप से अपना मत "${cand.name}" को देना चाहते हैं?`)) {
+                if(!appState.votedSerials) appState.votedSerials = {};
+                if(!appState.votes) appState.votes = [];
+
                 appState.votedSerials[tempVoter.serial] = true;
                 const timeStr = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+                
                 appState.votes.push({
                     serial: tempVoter.serial,
                     name: tempVoter.name,
@@ -792,7 +830,8 @@
                     candidateName: cand.name,
                     time: timeStr
                 });
-                saveState();
+
+                saveState(); // Saves instantly to Firebase Cloud!
 
                 document.getElementById('slipVoterName').innerText = tempVoter.name;
                 document.getElementById('slipVoterSerial').innerText = `मतदाता क्रमांक: #${tempVoter.serial}`;
@@ -827,6 +866,7 @@
                 document.getElementById('adminLoginBox').classList.add('hidden');
                 document.getElementById('adminWorkspace').classList.remove('hidden');
                 document.getElementById('activeRoleBadge').innerText = r === 'head' ? 'Admin Head' : (r === 'senior' ? 'Senior Admin' : 'Junior Admin');
+                
                 const isHead = (r === 'head');
                 document.getElementById('tabBtnPermissions').classList.toggle('hidden', !isHead);
                 document.getElementById('tabBtnTimer').classList.toggle('hidden', !isHead);
@@ -863,11 +903,12 @@
             if(role === 'head') newP = document.getElementById('newHeadPass').value.trim();
             if(role === 'senior') newP = document.getElementById('newSeniorPass').value.trim();
             if(role === 'junior') newP = document.getElementById('newJuniorPass').value.trim();
+
             if(!newP) return alert("कृपया नया पासवर्ड लिखें!");
             appState.admins[role].password = newP;
-            saveState();
+            saveState(); // Saves instantly to Firebase!
             refreshAdminUI();
-            alert("पासवर्ड सफलतापूर्वक अपडेट कर दिया गया!");
+            alert("पासवर्ड क्लाउड पर अपडेट हो गया! अब हर फोन में यही पासवर्ड काम करेगा।");
             document.getElementById('newHeadPass').value = "";
             document.getElementById('newSeniorPass').value = "";
             document.getElementById('newJuniorPass').value = "";
@@ -876,7 +917,7 @@
         function refreshAdminUI() {
             const cList = document.getElementById('adminCandidatesList');
             cList.innerHTML = "";
-            appState.candidates.forEach(c => {
+            (appState.candidates || []).forEach(c => {
                 cList.innerHTML += `
                     <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
                         <p class="font-bold text-xs text-slate-800">${c.name}</p>
@@ -888,20 +929,20 @@
                 `;
             });
 
-            const cast = appState.votes.length;
+            const cast = (appState.votes || []).length;
             document.getElementById('statVotesCast').innerText = cast;
             document.getElementById('statVotePercent').innerText = ((cast / 3905) * 100).toFixed(1) + '%';
 
             const audit = document.getElementById('secretAuditRows');
             audit.innerHTML = "";
-            appState.votes.forEach(v => {
+            (appState.votes || []).forEach(v => {
                 audit.innerHTML += `<tr><td class="p-2.5 font-mono">${v.serial}</td><td class="p-2.5 font-semibold">${v.name}</td><td class="p-2.5 font-bold text-emerald-700">${v.candidateName}</td><td class="p-2.5 text-slate-400">${v.time}</td></tr>`;
             });
 
             const tally = document.getElementById('adminTallyList');
             tally.innerHTML = "";
-            appState.candidates.forEach(cand => {
-                const count = appState.votes.filter(v => v.candidateId === cand.id).length;
+            (appState.candidates || []).forEach(cand => {
+                const count = (appState.votes || []).filter(v => v.candidateId === cand.id).length;
                 const pct = cast > 0 ? ((count / cast) * 100).toFixed(1) : 0;
                 tally.innerHTML += `
                     <div class="p-2.5 bg-slate-50 border rounded-xl flex items-center justify-between">
@@ -923,7 +964,7 @@
             document.getElementById('toggleJuniorPermBtn').innerText = jnrAllowed ? 'अनुमति बंद करें' : 'अनुमति दें';
             document.getElementById('toggleJuniorPermBtn').className = jnrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
 
-            // Show Current Passwords in Admin Head Panel
+            // Passwords shown live from Cloud
             document.getElementById('currentHeadPassLabel').innerText = appState.admins.head.password;
             document.getElementById('currentSeniorPassLabel').innerText = appState.admins.senior.password;
             document.getElementById('currentJuniorPassLabel').innerText = appState.admins.junior.password;
@@ -946,14 +987,14 @@
         }
 
         function editCand(id) {
-            const cand = appState.candidates.find(c => c.id === id);
+            const cand = (appState.candidates || []).find(c => c.id === id);
             const newName = prompt("उम्मीदवार का नया नाम दर्ज करें:", cand.name);
             if(newName && newName.trim()) { cand.name = newName.trim(); saveState(); renderPublicCandidates(); refreshAdminUI(); }
         }
 
         function delCand(id) {
             if(confirm("क्या आप वाकई इस उम्मीदवार को हटाना चाहते हैं?")) {
-                appState.candidates = appState.candidates.filter(c => c.id !== id);
+                appState.candidates = (appState.candidates || []).filter(c => c.id !== id);
                 saveState(); renderPublicCandidates(); refreshAdminUI();
             }
         }
@@ -965,10 +1006,10 @@
         }
 
         function triggerWinner() {
-            if(appState.votes.length === 0) return alert("अभी कोई वोट नहीं पड़ा!");
+            if((appState.votes || []).length === 0) return alert("अभी कोई वोट नहीं पड़ा!");
             const counts = {};
-            appState.candidates.forEach(c => counts[c.name] = 0);
-            appState.votes.forEach(v => counts[v.candidateName] = (counts[v.candidateName] || 0) + 1);
+            (appState.candidates || []).forEach(c => counts[c.name] = 0);
+            (appState.votes || []).forEach(v => counts[v.candidateName] = (counts[v.candidateName] || 0) + 1);
             let win = "", max = -1;
             for(let k in counts) { if(counts[k] > max) { max = counts[k]; win = k; } }
             appState.winnerDeclared = true;
