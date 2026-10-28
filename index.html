@@ -4,26 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ग्राम पंचायत पवसरा - प्रधानी जनमत सर्वेक्षण</title>
+    <!-- Tailwind CSS & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Error Detector for voters.js -->
-    <script>
-        window.votersJsLoaded = false;
-        window.addEventListener('error', function(e) {
-            if(e.filename && e.filename.indexOf('voters.js') !== -1) {
-                alert("⚠️ ध्यान दें: voters.js फ़ाइल में लाइन नंबर " + e.lineno + " पर गलती (Syntax Error) है! कृपया GitHub पर voters.js की लाइन " + e.lineno + " चेक करें।");
-            }
-        });
-    </script>
-    <script src="voters.js" onload="window.votersJsLoaded = true;"></script>
-    
+    <!-- Master Voter List File (3905 Voters) -->
+    <script src="voters.js"></script>
     <style>
         .card-3d {
             background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 6px 12px -4px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+        }
+        .card-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px -6px rgba(16, 185, 129, 0.2);
         }
         .btn-3d-green {
             background: linear-gradient(180deg, #10b981 0%, #059669 100%);
@@ -34,6 +30,7 @@
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-emerald-50/40 to-slate-200 text-slate-800 min-h-screen flex flex-col justify-between">
 
+    <!-- Navbar -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-emerald-100 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -45,60 +42,94 @@
                     <p class="text-[11px] font-semibold text-emerald-700">विकास खंड: अगौता | जनपद: बुलंदशहर</p>
                 </div>
             </div>
-            <button onclick="openAdminModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-500 border flex items-center justify-center">
+            <!-- Discreet Admin Lock Icon -->
+            <button onclick="openAdminModal()" title="सुरक्षित पोर्टल" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-500 border border-slate-200 flex items-center justify-center transition">
                 <i class="fa-solid fa-lock text-sm"></i>
             </button>
         </div>
     </header>
 
+    <!-- Main Container -->
     <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
 
+        <!-- Winner Banner -->
         <div id="winnerBanner" class="hidden mb-6 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white p-6 rounded-3xl shadow-xl text-center">
-            <span class="inline-block bg-white/20 text-white text-[11px] px-3.5 py-1 rounded-full font-bold uppercase mb-2">अंतिम चुनाव परिणाम</span>
-            <h2 class="text-2xl font-black" id="winnerText">जनमत विजेता घोषित</h2>
+            <span class="inline-block bg-white/20 backdrop-blur-sm text-white text-[11px] px-3.5 py-1 rounded-full font-bold uppercase tracking-widest mb-2">अंतिम चुनाव परिणाम</span>
+            <h2 class="text-2xl md:text-3xl font-black" id="winnerText">जनमत विजेता घोषित</h2>
+            <p class="text-xs text-amber-100 mt-1">पवसरा ग्रामवासियों का सर्वाधिक समर्थन प्राप्त हुआ।</p>
         </div>
 
+        <!-- Privacy Banner -->
         <div class="card-3d p-4 rounded-2xl mb-6 flex items-center space-x-4 border-l-4 border-emerald-500">
             <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div>
-                <h3 class="text-xs md:text-sm font-bold text-slate-900">100% गोपनीय डिजिटल मतदान प्रणाली</h3>
-                <p class="text-[11px] text-slate-500 mt-0.5">आपका मत पूर्णतः गुप्त है और किसी को दिखाई नहीं देता।</p>
+                <h3 class="text-xs md:text-sm font-bold text-slate-900">100% गोपनीय डिजिटल मतदान (Secret Ballot)</h3>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                    आपकी गोपनीयता पूर्णतः सुरक्षित है। आपका मत पूरी तरह गुप्त है और सार्वजनिक रूप से किसी को दिखाई नहीं देता।
+                </p>
             </div>
         </div>
 
-        <!-- Voter Verification Box -->
+        <!-- STEP 1: Smart Voter Search Card (Serial OR Name+Father) -->
         <div id="voterAuthCard" class="card-3d p-6 md:p-8 rounded-3xl max-w-md mx-auto text-center border">
             <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
                 <i class="fa-solid fa-id-card"></i>
             </div>
             <h2 class="text-xl font-black text-slate-900">मतदाता सत्यापन</h2>
-            <p class="text-xs text-slate-500 mt-1">मतदाता सूची (1 से 3905) के अनुसार अपना क्रमांक दर्ज करें</p>
+            <p class="text-xs text-slate-500 mt-1">मतदान हेतु अपनी पहचान सत्यापित करें</p>
 
-            <div class="mt-6 space-y-4 text-left">
+            <!-- Mode Switch Tabs -->
+            <div class="flex p-1 bg-slate-100 rounded-2xl mt-5 border border-slate-200 text-xs font-bold">
+                <button onclick="setSearchMode('serial')" id="tabModeSerial" class="flex-1 py-2 rounded-xl bg-white text-emerald-700 shadow-sm transition">
+                    1. क्रमांक (Serial No) से
+                </button>
+                <button onclick="setSearchMode('name')" id="tabModeName" class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 transition">
+                    2. नाम व पिता के नाम से
+                </button>
+            </div>
+
+            <!-- Search Mode 1: By Serial Number -->
+            <div id="searchBySerialSection" class="mt-4 space-y-4 text-left">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">मतदाता क्रमांक (Serial Number)</label>
+                    <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">मतदाता क्रमांक (1 से 3905)</label>
                     <div class="flex gap-2">
-                        <input type="number" id="inputSerial" min="1" max="3905" placeholder="उदा. 66, 105, 520" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none">
+                        <input type="number" id="inputSerial" min="1" max="3905" placeholder="उदा. 66, 105, 520" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-bold bg-slate-50/50">
                         <button onclick="lookupSerial()" class="btn-3d-green text-white font-bold px-5 py-3 rounded-xl text-xs shrink-0">खोजें</button>
                     </div>
                 </div>
-
-                <!-- Auto Matched Details -->
-                <div id="voterFoundBox" class="hidden p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-                    <p class="text-[11px] text-emerald-700 font-bold uppercase tracking-wider">मतदाता का विवरण मिला:</p>
-                    <p class="text-base font-black text-slate-900" id="matchedVoterName">---</p>
-                    <p class="text-xs text-slate-600" id="matchedVoterRelation">---</p>
-                    <button onclick="proceedToVote()" class="btn-3d-green w-full text-white font-bold py-3 rounded-xl text-xs mt-2">
-                        हाँ, यह मैं हूँ (मतदान करें) <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </button>
-                </div>
             </div>
+
+            <!-- Search Mode 2: By Name + Father/Husband Name -->
+            <div id="searchByNameSection" class="hidden mt-4 space-y-3 text-left">
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">मतदाता का नाम</label>
+                    <input type="text" id="inputSearchName" placeholder="वोटर लिस्ट के अनुसार अपना नाम" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">पिता या पति का नाम</label>
+                    <input type="text" id="inputSearchFather" placeholder="पिता/पति का नाम दर्ज करें" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
+                </div>
+                <button onclick="lookupByNameAndFather()" class="btn-3d-green w-full text-white font-bold py-3 rounded-xl text-xs">
+                    रिकॉर्ड खोजें <i class="fa-solid fa-magnifying-glass ml-1"></i>
+                </button>
+            </div>
+
+            <!-- Match Result Display Box -->
+            <div id="voterFoundBox" class="hidden mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2 text-left">
+                <p class="text-[11px] text-emerald-700 font-bold uppercase tracking-wider">मतदाता का विवरण मिला:</p>
+                <p class="text-base font-black text-slate-900" id="matchedVoterName">---</p>
+                <p class="text-xs text-slate-600 font-medium" id="matchedVoterRelation">---</p>
+                <button onclick="proceedToVote()" class="btn-3d-green w-full text-white font-bold py-3 rounded-xl text-xs mt-2">
+                    हाँ, यह मैं हूँ (मतदान करें) <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+
             <p id="voterErrorMsg" class="hidden text-xs font-semibold text-rose-600 mt-3"></p>
         </div>
 
-        <!-- Ballot Screen -->
+        <!-- STEP 2: Candidate Voting Screen (NAMES ONLY) -->
         <div id="votingBallotCard" class="hidden space-y-4">
             <div class="bg-white p-4 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm">
                 <div>
@@ -108,17 +139,24 @@
                 <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">सत्यापित</span>
             </div>
 
-            <h3 class="text-base font-black text-slate-900 pt-2">प्रधानी पद के उम्मीदवार (एक चुनें):</h3>
+            <h3 class="text-base font-black text-slate-900 pt-2">प्रधानी पद के उम्मीदवार (कृपया एक विकल्प चुनें):</h3>
+            
+            <!-- Sleek Names Only Grid -->
             <div id="candidatesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- Success Screen -->
+        <!-- STEP 3: Success Screen -->
         <div id="voteSuccessCard" class="hidden card-3d p-8 rounded-3xl text-center max-w-md mx-auto">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
                 <i class="fa-solid fa-check"></i>
             </div>
             <h3 class="text-2xl font-black text-slate-900">मतदान सफल रहा!</h3>
-            <p class="text-xs text-slate-600 mt-2">ग्राम पंचायत पवसरा सर्वेक्षण में आपका मत सुरक्षित रूप से दर्ज कर लिया गया है।</p>
+            <p class="text-xs text-slate-600 mt-2">
+                ग्राम पंचायत पवसरा सर्वेक्षण में आपका मत सुरक्षित रूप से दर्ज कर लिया गया है।
+            </p>
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <p class="text-[11px] text-slate-400">अंतिम परिणाम मतदान समाप्त होने पर घोषित किए जाएंगे।</p>
+            </div>
         </div>
 
     </main>
@@ -126,11 +164,16 @@
     <!-- ADMIN MODAL -->
     <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
         <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl p-6 md:p-8">
+            
+            <!-- Login Box -->
             <div id="adminLoginBox">
                 <div class="flex justify-between items-center mb-5">
                     <h3 class="text-lg font-black text-slate-900">सुरक्षित पोर्टल लॉगिन</h3>
-                    <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
+
                 <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">पद चुनें</label>
@@ -148,74 +191,128 @@
                 </form>
             </div>
 
+            <!-- Workspace -->
             <div id="adminWorkspace" class="hidden space-y-6">
                 <div class="flex justify-between items-center border-b pb-4">
-                    <h3 class="text-xl font-black text-slate-900">कंट्रोल डैशबोर्ड</h3>
-                    <div class="flex gap-2">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="text-xl font-black text-slate-900">कंट्रोल डैशबोर्ड</h3>
+                            <span id="activeRoleBadge" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Admin Head</span>
+                        </div>
+                        <p class="text-xs text-slate-500">पवसरा (बुलंदशहर)</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
                         <button onclick="logoutAdmin()" class="text-xs bg-rose-50 text-rose-600 font-bold px-3 py-1.5 rounded-xl">लॉगआउट</button>
                         <button onclick="closeAdminModal()" class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-xl">बंद करें</button>
                     </div>
                 </div>
 
-                <div class="flex space-x-2 border-b pb-2 text-xs font-bold">
-                    <button onclick="switchTab('candidatesTab')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white">उम्मीदवार</button>
-                    <button onclick="switchTab('auditTab')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">सीक्रेट ऑडिट लॉग</button>
-                    <button onclick="switchTab('permissionsTab')" id="tabBtnPermissions" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">लॉगिन अनुमतियाँ</button>
-                    <button onclick="switchTab('securityTab')" id="tabBtnSecurity" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">पासवर्ड बदलें</button>
+                <!-- Navigation Tabs -->
+                <div class="flex space-x-2 border-b overflow-x-auto pb-2 text-xs font-bold">
+                    <button onclick="switchTab('candidatesTab')" id="tabBtnCandidates" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white">उम्मीदवार</button>
+                    <button onclick="switchTab('auditTab')" id="tabBtnAudit" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">सीक्रेट ऑडिट लॉग</button>
+                    <button onclick="switchTab('permissionsTab')" id="tabBtnPermissions" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">लॉगिन अनुमतियाँ (Head Only)</button>
+                    <button onclick="switchTab('securityTab')" id="tabBtnSecurity" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">पासवर्ड बदलें (Head Only)</button>
                 </div>
 
+                <!-- TAB 1: Candidates Management -->
                 <div id="candidatesTab" class="space-y-4">
-                    <div class="p-4 bg-slate-50 rounded-2xl border flex gap-2">
-                        <input type="text" id="addCandName" placeholder="उम्मीदवार का पूरा नाम" class="w-full px-3 py-2 text-xs border rounded-xl">
-                        <button onclick="addCandidateAction()" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">+ जोड़ें</button>
+                    <div class="p-4 bg-slate-50 rounded-2xl border space-y-3">
+                        <h4 class="text-xs font-black uppercase text-slate-700">नया उम्मीदवार जोड़ें</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="addCandName" placeholder="उम्मीदवार का पूरा नाम लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                            <button onclick="addCandidateAction()" class="btn-3d-green text-white text-xs font-bold px-5 py-2 rounded-xl shrink-0">+ जोड़ें</button>
+                        </div>
                     </div>
                     <div id="adminCandidatesList" class="space-y-2"></div>
                 </div>
 
+                <!-- TAB 2: Secret Audit & Live Tally -->
                 <div id="auditTab" class="hidden space-y-4">
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2">
                         <button onclick="toggleVoting()" id="votingToggleBtn" class="bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl">वोटिंग रोकें</button>
                         <button onclick="triggerWinner()" class="bg-purple-600 text-white text-xs font-bold px-4 py-2 rounded-xl">विजेता घोषित करें</button>
                     </div>
                     <div class="grid grid-cols-3 gap-3 text-center">
-                        <div class="p-3 bg-slate-50 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">कुल मतदाता</p><p class="text-lg font-black">3905</p></div>
+                        <div class="p-3 bg-slate-50 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">कुल मतदाता</p><p class="text-lg font-black text-slate-800">3905</p></div>
                         <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-100"><p class="text-[10px] text-emerald-600 font-bold">पड़े वोट</p><p class="text-lg font-black text-emerald-700" id="statVotesCast">0</p></div>
                         <div class="p-3 bg-amber-50 rounded-2xl border border-amber-100"><p class="text-[10px] text-amber-600 font-bold">वोटिंग %</p><p class="text-lg font-black text-amber-700" id="statVotePercent">0%</p></div>
                     </div>
                     <div>
-                        <h4 class="text-xs font-black uppercase text-slate-700 mb-2">लाइव वोट काउंट</h4>
+                        <h4 class="text-xs font-black uppercase text-slate-700 mb-2">लाइव वोट काउंट (Admin Only)</h4>
                         <div id="adminTallyList" class="space-y-2"></div>
                     </div>
                     <div>
-                        <h4 class="text-xs font-black uppercase text-rose-600 mb-2">सीक्रेट वोटिंग रिकॉर्ड:</h4>
+                        <h4 class="text-xs font-black uppercase text-rose-600 mb-2">सीक्रेट ऑडिट लॉग (किसने किसको वोट दिया):</h4>
                         <div class="border rounded-2xl overflow-hidden max-h-52 overflow-y-auto">
                             <table class="w-full text-xs text-left">
-                                <thead class="bg-slate-100 border-b"><tr><th class="p-2">क्रमांक</th><th class="p-2">नाम</th><th class="p-2 text-emerald-700">चुना गया प्रत्याशी</th><th class="p-2">समय</th></tr></thead>
+                                <thead class="bg-slate-100 text-slate-600 border-b">
+                                    <tr>
+                                        <th class="p-2.5">क्रमांक</th>
+                                        <th class="p-2.5">मतदाता का नाम</th>
+                                        <th class="p-2.5 text-emerald-700">चुना गया प्रत्याशी</th>
+                                        <th class="p-2.5">समय</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="secretAuditRows" class="divide-y"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
+                <!-- TAB 3: ADMIN PERMISSIONS (HEAD ONLY) -->
                 <div id="permissionsTab" class="hidden space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 rounded-2xl border bg-slate-50 space-y-3">
-                            <div class="flex justify-between items-center"><h5 class="text-xs font-bold">Senior Admin</h5><span id="seniorAllowedBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">अनुमति बंद</span></div>
-                            <button onclick="toggleAdminPermission('senior')" id="toggleSeniorPermBtn" class="w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white">अनुमति दें</button>
-                        </div>
-                        <div class="p-4 rounded-2xl border bg-slate-50 space-y-3">
-                            <div class="flex justify-between items-center"><h5 class="text-xs font-bold">Junior Admin</h5><span id="juniorAllowedBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">अनुमति बंद</span></div>
-                            <button onclick="toggleAdminPermission('junior')" id="toggleJuniorPermBtn" class="w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white">अनुमति दें</button>
+                    <div class="p-4 bg-slate-50 border rounded-2xl space-y-4">
+                        <h4 class="text-xs font-black uppercase text-slate-800">Senior & Junior Admin लॉगिन अनुमति कंट्रोल</h4>
+                        <p class="text-xs text-slate-500">जब आप यहाँ से अनुमति "चालू" करेंगे, तभी वे लॉगिन कर पाएंगे।</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div class="p-4 rounded-2xl border bg-white space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <h5 class="text-xs font-extrabold text-slate-800">Senior Admin लॉगिन</h5>
+                                    <span id="seniorAllowedBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">अनुमति बंद</span>
+                                </div>
+                                <button onclick="toggleAdminPermission('senior')" id="toggleSeniorPermBtn" class="w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white">अनुमति दें (Allow Login)</button>
+                            </div>
+
+                            <div class="p-4 rounded-2xl border bg-white space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <h5 class="text-xs font-extrabold text-slate-800">Junior Admin लॉगिन</h5>
+                                    <span id="juniorAllowedBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">अनुमति बंद</span>
+                                </div>
+                                <button onclick="toggleAdminPermission('junior')" id="toggleJuniorPermBtn" class="w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white">अनुमति दें (Allow Login)</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- TAB 4: PASSWORD MANAGER (HEAD ONLY) -->
                 <div id="securityTab" class="hidden space-y-4">
-                    <div class="p-4 bg-slate-50 border rounded-2xl space-y-3">
-                        <h4 class="text-xs font-black uppercase text-slate-800">पासवर्ड बदलें</h4>
-                        <div class="flex gap-2"><input type="text" id="newHeadPass" placeholder="Admin Head का नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('head')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
-                        <div class="flex gap-2"><input type="text" id="newSeniorPass" placeholder="Senior Admin का नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('senior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
-                        <div class="flex gap-2"><input type="text" id="newJuniorPass" placeholder="Junior Admin का नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('junior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
+                    <div class="p-5 bg-slate-50 border rounded-2xl space-y-4">
+                        <h4 class="text-xs font-black uppercase text-slate-800">सीक्रेट पासवर्ड बदलें (Admin Head Control)</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Admin Head का नया पासवर्ड:</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newHeadPass" placeholder="नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('head')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव करें</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Senior Admin का नया पासवर्ड:</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newSeniorPass" placeholder="नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('senior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव करें</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Junior Admin का नया पासवर्ड:</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newJuniorPass" placeholder="नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('junior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव करें</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -223,12 +320,14 @@
         </div>
     </div>
 
-    <footer class="bg-white/80 border-t py-4 text-center text-xs text-slate-500">
+    <!-- Footer -->
+    <footer class="bg-white/80 backdrop-blur border-t border-slate-200 py-4 text-center text-xs text-slate-500">
         <p>ग्राम पंचायत पवसरा (बुलंदशहर) | निष्पक्ष एवं पारदर्शी जनमत सर्वेक्षण प्रणाली</p>
     </footer>
 
+    <!-- App Logic -->
     <script>
-        let appState = JSON.parse(localStorage.getItem('pavsara_app_state_v4')) || {
+        let appState = JSON.parse(localStorage.getItem('pavsara_app_state_v5')) || {
             isVotingActive: true,
             winnerDeclared: false,
             winnerAnnouncement: "",
@@ -250,7 +349,9 @@
         let tempVoter = null;
         let loggedRole = null;
 
-        function saveState() { localStorage.setItem('pavsara_app_state_v4', JSON.stringify(appState)); }
+        function saveState() {
+            localStorage.setItem('pavsara_app_state_v5', JSON.stringify(appState));
+        }
 
         window.onload = function() {
             renderPublicCandidates();
@@ -262,7 +363,9 @@
             if(appState.winnerDeclared) {
                 b.classList.remove('hidden');
                 document.getElementById('winnerText').innerText = appState.winnerAnnouncement;
-            } else { b.classList.add('hidden'); }
+            } else {
+                b.classList.add('hidden');
+            }
         }
 
         function renderPublicCandidates() {
@@ -282,6 +385,24 @@
             });
         }
 
+        // Toggle Search Tabs (Serial vs Name+Father)
+        function setSearchMode(mode) {
+            document.getElementById('voterErrorMsg').classList.add('hidden');
+            document.getElementById('voterFoundBox').classList.add('hidden');
+            if (mode === 'serial') {
+                document.getElementById('searchBySerialSection').classList.remove('hidden');
+                document.getElementById('searchByNameSection').classList.add('hidden');
+                document.getElementById('tabModeSerial').className = "flex-1 py-2 rounded-xl bg-white text-emerald-700 shadow-sm transition";
+                document.getElementById('tabModeName').className = "flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 transition";
+            } else {
+                document.getElementById('searchBySerialSection').classList.add('hidden');
+                document.getElementById('searchByNameSection').classList.remove('hidden');
+                document.getElementById('tabModeName').className = "flex-1 py-2 rounded-xl bg-white text-emerald-700 shadow-sm transition";
+                document.getElementById('tabModeSerial').className = "flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 transition";
+            }
+        }
+
+        // Option 1: Lookup by Serial Number
         function lookupSerial() {
             const s = parseInt(document.getElementById('inputSerial').value);
             const err = document.getElementById('voterErrorMsg');
@@ -302,28 +423,81 @@
             }
 
             if(appState.votedSerials[s]) {
-                err.innerText = `चेतावनी: क्रमांक ${s} पर पहले ही मतदान हो चुका है!`;
+                err.innerText = `चेतावनी: क्रमांक ${s} पर पहले ही मतदान हो चुका है! दुबारा अनुमति नहीं है।`;
                 err.classList.remove('hidden');
                 return;
             }
 
-            // CRITICAL CHECK: Check if voters.js is loaded
-            if (typeof PAVSARA_VOTERS === 'undefined') {
-                err.innerHTML = "<b>⚠️ त्रुटि:</b> voters.js फ़ाइल लोड नहीं हुई है! कृपया GitHub पर voters.js फ़ाइल चेक करें (उसमें कोई कोमा या ब्रैकेट की गलती है)।";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            if(PAVSARA_VOTERS[s]) {
+            if(typeof PAVSARA_VOTERS !== 'undefined' && PAVSARA_VOTERS[s]) {
                 const voter = PAVSARA_VOTERS[s];
                 tempVoter = { serial: s, name: voter[0], relation: voter[1] };
-                document.getElementById('matchedVoterName').innerText = voter[0];
-                document.getElementById('matchedVoterRelation').innerText = "पिता/पति: " + voter[1];
+                document.getElementById('matchedVoterName').innerText = `${voter[0]} (क्रमांक: ${s})`;
+                document.getElementById('matchedVoterRelation').innerText = "पिता/पति: " + (voter[1] || "उपलब्ध नहीं");
                 foundBox.classList.remove('hidden');
             } else {
-                err.innerText = `क्रमांक ${s} डेटाबेस में नहीं मिला!`;
+                err.innerText = `क्रमांक ${s} रिकॉर्ड में नहीं मिला!`;
                 err.classList.remove('hidden');
             }
+        }
+
+        // Option 2: Lookup by Name and Father/Husband Name
+        function lookupByNameAndFather() {
+            const err = document.getElementById('voterErrorMsg');
+            const foundBox = document.getElementById('voterFoundBox');
+            err.classList.add('hidden');
+            foundBox.classList.add('hidden');
+
+            if(!appState.isVotingActive) {
+                err.innerText = "वोटिंग अभी एडमिन द्वारा अस्थायी रूप से रोकी गई है।";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            const queryName = document.getElementById('inputSearchName').value.trim().toLowerCase();
+            const queryFather = document.getElementById('inputSearchFather').value.trim().toLowerCase();
+
+            if(!queryName) {
+                err.innerText = "कृपया अपना नाम दर्ज करें।";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(typeof PAVSARA_VOTERS === 'undefined') {
+                err.innerText = "voters.js फ़ाइल लोड नहीं हुई है!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            let found = null;
+            for (let s in PAVSARA_VOTERS) {
+                const v = PAVSARA_VOTERS[s];
+                const vName = (v[0] || "").trim().toLowerCase();
+                const vFather = (v[1] || "").trim().toLowerCase();
+
+                if (vName === queryName) {
+                    if (!queryFather || vFather === queryFather || vFather.includes(queryFather) || queryFather.includes(vFather)) {
+                        found = { serial: parseInt(s), name: v[0], relation: v[1] };
+                        break;
+                    }
+                }
+            }
+
+            if(!found) {
+                err.innerText = "मतदाता सूची में यह नाम व पिता का नाम नहीं मिला! कृपया स्पेलिंग सही करें या क्रमांक द्वारा खोजें।";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(appState.votedSerials[found.serial]) {
+                err.innerText = `चेतावनी: क्रमांक ${found.serial} (${found.name}) द्वारा पहले ही मतदान हो चुका है!`;
+                err.classList.remove('hidden');
+                return;
+            }
+
+            tempVoter = found;
+            document.getElementById('matchedVoterName').innerText = `${found.name} (क्रमांक: ${found.serial})`;
+            document.getElementById('matchedVoterRelation').innerText = "पिता/पति: " + (found.relation || "उपलब्ध नहीं");
+            foundBox.classList.remove('hidden');
         }
 
         function proceedToVote() {
@@ -335,6 +509,7 @@
         function castVote(cid) {
             const cand = appState.candidates.find(c => c.id === cid);
             if(confirm(`क्या आप निश्चित रूप से अपना मत "${cand.name}" को देना चाहते हैं?`)) {
+                // Permanently lock this serial number
                 appState.votedSerials[tempVoter.serial] = true;
                 const timeStr = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
                 appState.votes.push({
@@ -350,6 +525,7 @@
             }
         }
 
+        // Admin Security & Login
         function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
         function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
@@ -367,11 +543,16 @@
                 loggedRole = r;
                 document.getElementById('adminLoginBox').classList.add('hidden');
                 document.getElementById('adminWorkspace').classList.remove('hidden');
+                document.getElementById('activeRoleBadge').innerText = r === 'head' ? 'Admin Head' : (r === 'senior' ? 'Senior Admin' : 'Junior Admin');
+                
                 const isHead = (r === 'head');
                 document.getElementById('tabBtnPermissions').classList.toggle('hidden', !isHead);
                 document.getElementById('tabBtnSecurity').classList.toggle('hidden', !isHead);
+
                 refreshAdminUI();
-            } else { alert("गलत पासवर्ड!"); }
+            } else {
+                alert("गलत पासवर्ड!");
+            }
         }
 
         function logoutAdmin() {
@@ -401,10 +582,11 @@
             if(role === 'head') newP = document.getElementById('newHeadPass').value.trim();
             if(role === 'senior') newP = document.getElementById('newSeniorPass').value.trim();
             if(role === 'junior') newP = document.getElementById('newJuniorPass').value.trim();
-            if(!newP) return alert("कृपया नया पासवर्ड लिखें!");
+
+            if(!newP) return alert("कृपया नया पासवर्ड दर्ज करें!");
             appState.admins[role].password = newP;
             saveState();
-            alert("पासवर्ड बदल दिया गया!");
+            alert(`${role.toUpperCase()} का पासवर्ड सफलतापूर्वक बदल दिया गया!`);
             document.getElementById('newHeadPass').value = "";
             document.getElementById('newSeniorPass').value = "";
             document.getElementById('newJuniorPass').value = "";
@@ -418,8 +600,8 @@
                     <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
                         <p class="font-bold text-xs text-slate-800">${c.name}</p>
                         <div class="flex gap-2">
-                            <button onclick="editCand(${c.id})" class="text-[11px] bg-slate-100 px-2 py-1 rounded">एडिट</button>
-                            <button onclick="delCand(${c.id})" class="text-[11px] bg-rose-50 text-rose-600 px-2 py-1 rounded">हटाएं</button>
+                            <button onclick="editCand(${c.id})" class="text-[11px] bg-slate-100 px-2.5 py-1 rounded-lg">नाम बदलें</button>
+                            <button onclick="delCand(${c.id})" class="text-[11px] bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg">हटाएं</button>
                         </div>
                     </div>
                 `;
@@ -432,7 +614,7 @@
             const audit = document.getElementById('secretAuditRows');
             audit.innerHTML = "";
             appState.votes.forEach(v => {
-                audit.innerHTML += `<tr><td class="p-2 font-mono">${v.serial}</td><td class="p-2">${v.name}</td><td class="p-2 font-bold text-emerald-700">${v.candidateName}</td><td class="p-2 text-slate-400">${v.time}</td></tr>`;
+                audit.innerHTML += `<tr><td class="p-2 font-mono">${v.serial}</td><td class="p-2 font-semibold">${v.name}</td><td class="p-2 font-bold text-emerald-700">${v.candidateName}</td><td class="p-2 text-slate-400">${v.time}</td></tr>`;
             });
 
             const tally = document.getElementById('adminTallyList');
@@ -441,42 +623,45 @@
                 const count = appState.votes.filter(v => v.candidateId === cand.id).length;
                 const pct = cast > 0 ? ((count / cast) * 100).toFixed(1) : 0;
                 tally.innerHTML += `
-                    <div class="p-2 bg-slate-50 border rounded-xl flex items-center justify-between">
+                    <div class="p-2.5 bg-slate-50 border rounded-xl flex items-center justify-between">
                         <span class="text-xs font-bold">${cand.name}</span>
                         <span class="text-xs font-black text-emerald-700">${count} वोट (${pct}%)</span>
                     </div>
                 `;
             });
 
-            const snr = appState.admins.senior.allowedByHead;
-            document.getElementById('seniorAllowedBadge').innerText = snr ? 'अनुमति चालू है' : 'अनुमति बंद है';
-            document.getElementById('seniorAllowedBadge').className = snr ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
-            document.getElementById('toggleSeniorPermBtn').innerText = snr ? 'अनुमति बंद करें' : 'अनुमति दें';
-            document.getElementById('toggleSeniorPermBtn').className = snr ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
+            const snrAllowed = appState.admins.senior.allowedByHead;
+            document.getElementById('seniorAllowedBadge').innerText = snrAllowed ? 'अनुमति चालू है' : 'अनुमति बंद है';
+            document.getElementById('seniorAllowedBadge').className = snrAllowed ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+            document.getElementById('toggleSeniorPermBtn').innerText = snrAllowed ? 'अनुमति बंद करें (Revoke)' : 'अनुमति दें (Allow)';
+            document.getElementById('toggleSeniorPermBtn').className = snrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
 
-            const jnr = appState.admins.junior.allowedByHead;
-            document.getElementById('juniorAllowedBadge').innerText = jnr ? 'अनुमति चालू है' : 'अनुमति बंद है';
-            document.getElementById('juniorAllowedBadge').className = jnr ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
-            document.getElementById('toggleJuniorPermBtn').innerText = jnr ? 'अनुमति बंद करें' : 'अनुमति दें';
-            document.getElementById('toggleJuniorPermBtn').className = jnr ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
+            const jnrAllowed = appState.admins.junior.allowedByHead;
+            document.getElementById('juniorAllowedBadge').innerText = jnrAllowed ? 'अनुमति चालू है' : 'अनुमति बंद है';
+            document.getElementById('juniorAllowedBadge').className = jnrAllowed ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+            document.getElementById('toggleJuniorPermBtn').innerText = jnrAllowed ? 'अनुमति बंद करें (Revoke)' : 'अनुमति दें (Allow)';
+            document.getElementById('toggleJuniorPermBtn').className = jnrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
         }
 
         function addCandidateAction() {
             const n = document.getElementById('addCandName').value.trim();
-            if(!n) return alert("नाम लिखें!");
+            if(!n) return alert("उम्मीदवार का नाम आवश्यक है!");
             appState.candidates.push({ id: Date.now(), name: n });
-            saveState(); renderPublicCandidates(); refreshAdminUI();
+            saveState();
+            renderPublicCandidates();
+            refreshAdminUI();
             document.getElementById('addCandName').value = "";
+            alert("उम्मीदवार जोड़ा गया!");
         }
 
         function editCand(id) {
             const cand = appState.candidates.find(c => c.id === id);
-            const newName = prompt("नया नाम दर्ज करें:", cand.name);
-            if(newName) { cand.name = newName.trim(); saveState(); renderPublicCandidates(); refreshAdminUI(); }
+            const newName = prompt("उम्मीदवार का नया नाम दर्ज करें:", cand.name);
+            if(newName && newName.trim()) { cand.name = newName.trim(); saveState(); renderPublicCandidates(); refreshAdminUI(); }
         }
 
         function delCand(id) {
-            if(confirm("उम्मीदवार हटाएं?")) {
+            if(confirm("क्या आप वाकई इस उम्मीदवार को हटाना चाहते हैं?")) {
                 appState.candidates = appState.candidates.filter(c => c.id !== id);
                 saveState(); renderPublicCandidates(); refreshAdminUI();
             }
@@ -486,10 +671,11 @@
             appState.isVotingActive = !appState.isVotingActive;
             saveState();
             document.getElementById('votingToggleBtn').innerText = appState.isVotingActive ? "वोटिंग रोकें" : "वोटिंग चालू करें";
+            alert(appState.isVotingActive ? "वोटिंग चालू है।" : "वोटिंग रोक दी गई है।");
         }
 
         function triggerWinner() {
-            if(appState.votes.length === 0) return alert("कोई वोट नहीं पड़ा!");
+            if(appState.votes.length === 0) return alert("अभी कोई वोट नहीं पड़ा!");
             const counts = {};
             appState.candidates.forEach(c => counts[c.name] = 0);
             appState.votes.forEach(v => counts[v.candidateName] = (counts[v.candidateName] || 0) + 1);
@@ -497,7 +683,10 @@
             for(let k in counts) { if(counts[k] > max) { max = counts[k]; win = k; } }
             appState.winnerDeclared = true;
             appState.winnerAnnouncement = `विजेता: ${win} (${max} वोट)`;
-            saveState(); renderWinnerBanner(); closeAdminModal();
+            saveState();
+            renderWinnerBanner();
+            alert("विजेता घोषित किया गया!");
+            closeAdminModal();
         }
     </script>
 </body>
