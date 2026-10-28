@@ -26,9 +26,7 @@
             box-shadow: 0 4px 0 #047857, 0 6px 15px rgba(16, 185, 129, 0.3);
         }
         .btn-3d-green:active { transform: translateY(3px); box-shadow: 0 1px 0 #047857; }
-        .timer-box {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        }
+        .timer-box { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-emerald-50/40 to-slate-200 text-slate-800 min-h-screen flex flex-col justify-between">
@@ -171,7 +169,7 @@
             <p id="voterErrorMsg" class="hidden text-xs font-semibold text-rose-600 mt-3"></p>
         </div>
 
-        <!-- STEP 2: Candidate Voting Screen (NAMES ONLY) -->
+        <!-- STEP 2: Candidates Screen -->
         <div id="votingBallotCard" class="hidden space-y-4">
             <div class="bg-white p-4 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm">
                 <div>
@@ -260,9 +258,9 @@
                     <button onclick="switchTab('candidatesTab')" id="tabBtnCandidates" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white">उम्मीदवार</button>
                     <button onclick="switchTab('auditTab')" id="tabBtnAudit" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">सीक्रेट ऑडिट लॉग</button>
                     <button onclick="switchTab('permissionsTab')" id="tabBtnPermissions" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">लॉगिन अनुमतियाँ</button>
-                    <button onclick="switchTab('timerTab')" id="tabBtnTimer" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">टाइमर कंट्रोल्स</button>
+                    <button onclick="switchTab('timerTab')" id="tabBtnTimer" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">टाइमर सेटिंग्स</button>
                     <button onclick="switchTab('resetTab')" id="tabBtnReset" class="px-3.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50">डेटा रीसेट (Head Only)</button>
-                    <button onclick="switchTab('securityTab')" id="tabBtnSecurity" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">पासवर्ड बदलें</button>
+                    <button onclick="switchTab('securityTab')" id="tabBtnSecurity" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">पासवर्ड मैनेजर (Head Only)</button>
                 </div>
 
                 <!-- TAB 1: Candidates -->
@@ -331,7 +329,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 5: DANGER ZONE - RESET CONTROLS (HEAD ONLY) -->
+                <!-- TAB 5: RESET CONTROLS (HEAD ONLY) -->
                 <div id="resetTab" class="hidden space-y-4">
                     <div class="p-5 bg-rose-50 border border-rose-200 rounded-2xl space-y-4">
                         <div>
@@ -342,7 +340,6 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                            <!-- Reset Votes -->
                             <div class="bg-white p-4 rounded-xl border border-rose-200 space-y-2">
                                 <h5 class="text-xs font-extrabold text-slate-800">1. सभी वोट रीसेट करें (Zero Votes)</h5>
                                 <p class="text-[10px] text-slate-500">सारे पड़े हुए वोट शून्य हो जाएँगे और सभी 3905 वोटर दोबारा वोट डाल सकेंगे।</p>
@@ -351,7 +348,6 @@
                                 </button>
                             </div>
 
-                            <!-- Reset Declared Winner -->
                             <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-2">
                                 <h5 class="text-xs font-extrabold text-slate-800">2. परिणाम वापस लें (Reset Result)</h5>
                                 <p class="text-[10px] text-slate-500">घोषित किया गया विनर बैनर होमपेज से हट जाएगा और चुनाव फिर से सामान्य हो जाएगा।</p>
@@ -363,12 +359,51 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: Password Settings -->
+                <!-- TAB 6: MASTER PASSWORD MANAGER (HEAD ONLY - VIEW & UPDATE) -->
                 <div id="securityTab" class="hidden space-y-4">
-                    <div class="p-5 bg-slate-50 border rounded-2xl space-y-3">
-                        <div class="flex gap-2"><input type="text" id="newHeadPass" placeholder="Admin Head नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('head')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
-                        <div class="flex gap-2"><input type="text" id="newSeniorPass" placeholder="Senior Admin नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('senior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
-                        <div class="flex gap-2"><input type="text" id="newJuniorPass" placeholder="Junior Admin नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('junior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
+                    <div class="p-5 bg-slate-50 border rounded-2xl space-y-4">
+                        <div>
+                            <h4 class="text-xs font-black uppercase text-slate-800">पासवर्ड मैनेजर (केवल Admin Head देख व बदल सकता है)</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5">यहाँ आपको Senior और Junior के पासवर्ड साफ़-साफ़ दिखेंगे। आप जब चाहें नया पासवर्ड सेट कर सकते हैं।</p>
+                        </div>
+
+                        <div class="space-y-3 pt-1">
+                            <!-- Head Password -->
+                            <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-bold text-slate-700">1. Admin Head (आपका पासवर्ड):</label>
+                                    <span class="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200" id="currentHeadPassLabel">---</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newHeadPass" placeholder="नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('head')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">अपडेट करें</button>
+                                </div>
+                            </div>
+
+                            <!-- Senior Password -->
+                            <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-bold text-slate-700">2. Senior Admin का वर्तमान पासवर्ड:</label>
+                                    <span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200" id="currentSeniorPassLabel">---</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newSeniorPass" placeholder="Senior Admin का नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('senior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">अपडेट करें</button>
+                                </div>
+                            </div>
+
+                            <!-- Junior Password -->
+                            <div class="p-3.5 bg-white border rounded-xl space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-bold text-slate-700">3. Junior Admin का वर्तमान पासवर्ड:</label>
+                                    <span class="text-xs font-mono font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-lg border border-purple-200" id="currentJuniorPassLabel">---</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="newJuniorPass" placeholder="Junior Admin का नया पासवर्ड लिखें" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                    <button onclick="updatePassword('junior')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">अपडेट करें</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -382,7 +417,18 @@
 
     <!-- App Logic -->
     <script>
-        let appState = JSON.parse(localStorage.getItem('pavsara_app_state_v8')) || {
+        // ==========================================
+        // 🔒 मास्टर पासवर्ड सेटिंग्स (सभी डिवाइस के लिए स्थायी)
+        // नए फोन, नए डिवाइस या रिफ्रेश होने पर भी यही पासवर्ड हमेशा काम करेंगे!
+        // ==========================================
+        const MASTER_PASSWORDS = {
+            head: "pavsara@head2026",    // Admin Head का स्थायी मास्टर पासवर्ड
+            senior: "snr@pavsara77",     // Senior Admin का स्थायी पासवर्ड
+            junior: "jnr@pavsara55"      // Junior Admin का स्थायी पासवर्ड
+        };
+
+        // Persistent App State
+        let appState = JSON.parse(localStorage.getItem('pavsara_election_master_store')) || {
             isVotingActive: true,
             winnerDeclared: false,
             winnerAnnouncement: "",
@@ -395,18 +441,29 @@
                 { id: 4, name: "Lala (वर्तमान प्रधान)" }
             ],
             admins: {
-                head: { password: "admin", active: true },
-                senior: { password: "senior", active: true, allowedByHead: false },
-                junior: { password: "junior", active: true, allowedByHead: false }
+                head: { password: MASTER_PASSWORDS.head, active: true },
+                senior: { password: MASTER_PASSWORDS.senior, active: true, allowedByHead: false },
+                junior: { password: MASTER_PASSWORDS.junior, active: true, allowedByHead: false }
             },
             votes: [],
             votedSerials: {}
         };
 
+        // Guarantee passwords never fall back to "admin"
+        if (!appState.admins.head.password || appState.admins.head.password === "admin") {
+            appState.admins.head.password = MASTER_PASSWORDS.head;
+        }
+        if (!appState.admins.senior.password || appState.admins.senior.password === "senior") {
+            appState.admins.senior.password = MASTER_PASSWORDS.senior;
+        }
+        if (!appState.admins.junior.password || appState.admins.junior.password === "junior") {
+            appState.admins.junior.password = MASTER_PASSWORDS.junior;
+        }
+
         let tempVoter = null;
         let loggedRole = null;
 
-        function saveState() { localStorage.setItem('pavsara_app_state_v8', JSON.stringify(appState)); }
+        function saveState() { localStorage.setItem('pavsara_election_master_store', JSON.stringify(appState)); }
 
         window.onload = function() {
             renderPublicCandidates();
@@ -415,7 +472,6 @@
             startCountdownTimer();
         };
 
-        // Turnout Meter
         function updateTurnoutMeter() {
             const cast = appState.votes.length;
             const pct = ((cast / 3905) * 100).toFixed(1);
@@ -423,7 +479,6 @@
             document.getElementById('publicTurnoutBar').style.width = pct + '%';
         }
 
-        // Live Countdown Clock with Stop Feature
         function startCountdownTimer() {
             function updateClock() {
                 const badge = document.getElementById('timerStatusBadge');
@@ -480,7 +535,6 @@
             alert("नया चुनाव समय सेट कर दिया गया!");
         }
 
-        // RESET ACTIONS (HEAD ONLY)
         function resetAllVotesAction() {
             if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
             const confirm1 = confirm("⚠️ चेतावनी: क्या आप सचमुच सभी पड़े हुए वोटों को शून्य (0) करना चाहते हैं?");
@@ -773,7 +827,6 @@
                 document.getElementById('adminLoginBox').classList.add('hidden');
                 document.getElementById('adminWorkspace').classList.remove('hidden');
                 document.getElementById('activeRoleBadge').innerText = r === 'head' ? 'Admin Head' : (r === 'senior' ? 'Senior Admin' : 'Junior Admin');
-                
                 const isHead = (r === 'head');
                 document.getElementById('tabBtnPermissions').classList.toggle('hidden', !isHead);
                 document.getElementById('tabBtnTimer').classList.toggle('hidden', !isHead);
@@ -813,7 +866,8 @@
             if(!newP) return alert("कृपया नया पासवर्ड लिखें!");
             appState.admins[role].password = newP;
             saveState();
-            alert("पासवर्ड बदल दिया गया!");
+            refreshAdminUI();
+            alert("पासवर्ड सफलतापूर्वक अपडेट कर दिया गया!");
             document.getElementById('newHeadPass').value = "";
             document.getElementById('newSeniorPass').value = "";
             document.getElementById('newJuniorPass').value = "";
@@ -869,7 +923,11 @@
             document.getElementById('toggleJuniorPermBtn').innerText = jnrAllowed ? 'अनुमति बंद करें' : 'अनुमति दें';
             document.getElementById('toggleJuniorPermBtn').className = jnrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
 
-            // Timer Toggle Action Button text
+            // Show Current Passwords in Admin Head Panel
+            document.getElementById('currentHeadPassLabel').innerText = appState.admins.head.password;
+            document.getElementById('currentSeniorPassLabel').innerText = appState.admins.senior.password;
+            document.getElementById('currentJuniorPassLabel').innerText = appState.admins.junior.password;
+
             const tBtn = document.getElementById('timerToggleActionBtn');
             if(tBtn) {
                 tBtn.innerText = appState.isTimerStopped ? "टाइमर चालू करें (Resume Timer)" : "टाइमर रोकें (Stop Timer)";
