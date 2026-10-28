@@ -347,4 +347,280 @@
         }
 
         window.onload = function() {
-            renderP
+            renderPublicCandidates();
+            renderWinnerBanner();
+        };
+
+        function renderWinnerBanner() {
+            const b = document.getElementById('winnerBanner');
+            if(appState.winnerDeclared) {
+                b.classList.remove('hidden');
+                document.getElementById('winnerText').innerText = appState.winnerAnnouncement;
+            } else {
+                b.classList.add('hidden');
+            }
+        }
+
+        // Render Names Only
+        function renderPublicCandidates() {
+            const grid = document.getElementById('candidatesGrid');
+            grid.innerHTML = "";
+            appState.candidates.forEach(cand => {
+                const c = document.createElement('div');
+                c.className = "card-3d p-4 rounded-2xl flex items-center justify-between";
+                c.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center">#</span>
+                        <h4 class="font-extrabold text-sm md:text-base text-slate-900">${cand.name}</h4>
+                    </div>
+                    <button onclick="castVote(${cand.id})" class="btn-3d-green text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow">वोट दें</button>
+                `;
+                grid.appendChild(c);
+            });
+        }
+
+        // Voter Lookup
+        function lookupSerial() {
+            const s = parseInt(document.getElementById('inputSerial').value);
+            const err = document.getElementById('voterErrorMsg');
+            const foundBox = document.getElementById('voterFoundBox');
+            const manualBox = document.getElementById('voterManualBox');
+            err.classList.add('hidden');
+            foundBox.classList.add('hidden');
+            manualBox.classList.add('hidden');
+
+            if(!appState.isVotingActive) {
+                err.innerText = "वोटिंग अभी एडमिन द्वारा अस्थायी रूप से रोकी गई है।";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(!s || s < 1 || s > 3905) {
+                err.innerText = "कृपया 1 से 3905 के बीच वैध क्रमांक दर्ज करें।";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(appState.votedSerials[s]) {
+                err.innerText = `चेतावनी: क्रमांक ${s} पर पहले ही मतदान हो चुका है! दुबारा अनुमति नहीं है।`;
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if(typeof PAVSARA_VOTERS !== 'undefined' && PAVSARA_VOTERS[s]) {
+                const voter = PAVSARA_VOTERS[s];
+                tempVoter = { serial: s, name: voter[0], relation: voter[1] };
+                document.getElementById('matchedVoterName').innerText = voter[0];
+                document.getElementById('matchedVoterRelation').innerText = "पिता/पति: " + voter[1];
+                foundBox.classList.remove('hidden');
+            } else {
+                tempVoter = { serial: s, name: "", relation: "" };
+                document.getElementById('manualSerialDisplay').innerText = s;
+                manualBox.classList.remove('hidden');
+            }
+        }
+
+        function proceedToVote() {
+            document.getElementById('voterAuthCard').classList.add('hidden');
+            document.getElementById('votingBallotCard').classList.remove('hidden');
+            document.getElementById('currentVoterDisplay').innerText = `${tempVoter.name} (क्रमांक: ${tempVoter.serial})`;
+        }
+
+        function proceedManualVote() {
+            const name = document.getElementById('manualVoterName').value.trim();
+            if(!name) return alert("कृपया अपना नाम दर्ज करें!");
+            tempVoter.name = name;
+            proceedToVote();
+        }
+
+        function castVote(cid) {
+            const cand = appState.candidates.find(c => c.id === cid);
+            if(confirm(`क्या आप निश्चित रूप से अपना मत "${cand.name}" को देना चाहते हैं?`)) {
+                appState.votedSerials[tempVoter.serial] = true;
+                const timeStr = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+                appState.votes.push({
+                    serial: tempVoter.serial,
+                    name: tempVoter.name,
+                    candidateId: cand.id,
+                    candidateName: cand.name,
+                    time: timeStr
+                });
+                saveState();
+                document.getElementById('votingBallotCard').classList.add('hidden');
+                document.getElementById('voteSuccessCard').classList.remove('hidden');
+            }
+        }
+
+        // Admin Security & Login
+        function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const r = document.getElementById('adminRoleSelect').value;
+            const p = document.getElementById('adminSecretKey').value.trim();
+
+            // Head always allowed. Senior & Junior need permission from Head!
+            if(r !== 'head' && !appState.admins[r].allowedByHead) {
+                alert("प्रवेश अस्वीकृत: Admin Head द्वारा इस पद के लॉगिन की अनुमति अभी बंद है!");
+                return;
+            }
+
+            if(appState.admins[r].password === p) {
+                loggedRole = r;
+                document.getElementById('adminLoginBox').classList.add('hidden');
+                document.getElementById('adminWorkspace').classList.remove('hidden');
+                document.getElementById('activeRoleBadge').innerText = r === 'head' ? 'Admin Head' : (r === 'senior' ? 'Senior Admin' : 'Junior Admin');
+                
+                const isHead = (r === 'head');
+                document.getElementById('tabBtnPermissions').classList.toggle('hidden', !isHead);
+                document.getElementById('tabBtnSecurity').classList.toggle('hidden', !isHead);
+
+                refreshAdminUI();
+            } else {
+                alert("गलत पासवर्ड!");
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminWorkspace').classList.add('hidden');
+            document.getElementById('adminLoginBox').classList.remove('hidden');
+            document.getElementById('adminSecretKey').value = "";
+        }
+
+        function switchTab(t) {
+            ['candidatesTab', 'auditTab', 'permissionsTab', 'securityTab'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
+            document.getElementById(t).classList.remove('hidden');
+        }
+
+        // Head Admin Permission Toggles
+        function toggleAdminPermission(role) {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
+            appState.admins[role].allowedByHead = !appState.admins[role].allowedByHead;
+            saveState();
+            refreshAdminUI();
+        }
+
+        function updatePassword(role) {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
+            let newP = "";
+            if(role === 'head') newP = document.getElementById('newHeadPass').value.trim();
+            if(role === 'senior') newP = document.getElementById('newSeniorPass').value.trim();
+            if(role === 'junior') newP = document.getElementById('newJuniorPass').value.trim();
+
+            if(!newP) return alert("कृपया नया पासवर्ड दर्ज करें!");
+            appState.admins[role].password = newP;
+            saveState();
+            alert(`${role.toUpperCase()} का पासवर्ड सफलतापूर्वक बदल दिया गया!`);
+            document.getElementById('newHeadPass').value = "";
+            document.getElementById('newSeniorPass').value = "";
+            document.getElementById('newJuniorPass').value = "";
+        }
+
+        function refreshAdminUI() {
+            // Candidates in Admin (Names only)
+            const cList = document.getElementById('adminCandidatesList');
+            cList.innerHTML = "";
+            appState.candidates.forEach(c => {
+                cList.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-white border rounded-xl">
+                        <p class="font-bold text-xs text-slate-800">${c.name}</p>
+                        <div class="flex gap-2">
+                            <button onclick="editCand(${c.id})" class="text-[11px] bg-slate-100 px-2.5 py-1 rounded-lg">नाम बदलें</button>
+                            <button onclick="delCand(${c.id})" class="text-[11px] bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg">हटाएं</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Stats
+            const cast = appState.votes.length;
+            document.getElementById('statVotesCast').innerText = cast;
+            document.getElementById('statVotePercent').innerText = ((cast / 3905) * 100).toFixed(1) + '%';
+
+            // Secret Audit Rows
+            const audit = document.getElementById('secretAuditRows');
+            audit.innerHTML = "";
+            appState.votes.forEach(v => {
+                audit.innerHTML += `<tr><td class="p-2 font-mono">${v.serial}</td><td class="p-2 font-semibold">${v.name}</td><td class="p-2 font-bold text-emerald-700">${v.candidateName}</td><td class="p-2 text-slate-400">${v.time}</td></tr>`;
+            });
+
+            // Live Tally
+            const tally = document.getElementById('adminTallyList');
+            tally.innerHTML = "";
+            appState.candidates.forEach(cand => {
+                const count = appState.votes.filter(v => v.candidateId === cand.id).length;
+                const pct = cast > 0 ? ((count / cast) * 100).toFixed(1) : 0;
+                tally.innerHTML += `
+                    <div class="p-2.5 bg-slate-50 border rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-bold">${cand.name}</span>
+                        <span class="text-xs font-black text-emerald-700">${count} वोट (${pct}%)</span>
+                    </div>
+                `;
+            });
+
+            // Permission Badges and Buttons
+            const snrAllowed = appState.admins.senior.allowedByHead;
+            document.getElementById('seniorAllowedBadge').innerText = snrAllowed ? 'अनुमति चालू है' : 'अनुमति बंद है';
+            document.getElementById('seniorAllowedBadge').className = snrAllowed ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+            document.getElementById('toggleSeniorPermBtn').innerText = snrAllowed ? 'अनुमति बंद करें (Revoke)' : 'अनुमति दें (Allow)';
+            document.getElementById('toggleSeniorPermBtn').className = snrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
+
+            const jnrAllowed = appState.admins.junior.allowedByHead;
+            document.getElementById('juniorAllowedBadge').innerText = jnrAllowed ? 'अनुमति चालू है' : 'अनुमति बंद है';
+            document.getElementById('juniorAllowedBadge').className = jnrAllowed ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
+            document.getElementById('toggleJuniorPermBtn').innerText = jnrAllowed ? 'अनुमति बंद करें (Revoke)' : 'अनुमति दें (Allow)';
+            document.getElementById('toggleJuniorPermBtn').className = jnrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
+        }
+
+        function addCandidateAction() {
+            const n = document.getElementById('addCandName').value.trim();
+            if(!n) return alert("उम्मीदवार का नाम आवश्यक है!");
+            appState.candidates.push({ id: Date.now(), name: n });
+            saveState();
+            renderPublicCandidates();
+            refreshAdminUI();
+            document.getElementById('addCandName').value = "";
+            alert("उम्मीदवार जोड़ा गया!");
+        }
+
+        function editCand(id) {
+            const cand = appState.candidates.find(c => c.id === id);
+            const newName = prompt("उम्मीदवार का नया नाम दर्ज करें:", cand.name);
+            if(newName && newName.trim()) { cand.name = newName.trim(); saveState(); renderPublicCandidates(); refreshAdminUI(); }
+        }
+
+        function delCand(id) {
+            if(confirm("क्या आप वाकई इस उम्मीदवार को हटाना चाहते हैं?")) {
+                appState.candidates = appState.candidates.filter(c => c.id !== id);
+                saveState(); renderPublicCandidates(); refreshAdminUI();
+            }
+        }
+
+        function toggleVoting() {
+            appState.isVotingActive = !appState.isVotingActive;
+            saveState();
+            document.getElementById('votingToggleBtn').innerText = appState.isVotingActive ? "वोटिंग रोकें" : "वोटिंग चालू करें";
+            alert(appState.isVotingActive ? "वोटिंग चालू है।" : "वोटिंग रोक दी गई है।");
+        }
+
+        function triggerWinner() {
+            if(appState.votes.length === 0) return alert("अभी कोई वोट नहीं पड़ा!");
+            const counts = {};
+            appState.candidates.forEach(c => counts[c.name] = 0);
+            appState.votes.forEach(v => counts[v.candidateName] = (counts[v.candidateName] || 0) + 1);
+            let win = "", max = -1;
+            for(let k in counts) { if(counts[k] > max) { max = counts[k]; win = k; } }
+            appState.winnerDeclared = true;
+            appState.winnerAnnouncement = `विजेता: ${win} (${max} वोट)`;
+            saveState();
+            renderWinnerBanner();
+            alert("विजेता घोषित किया गया!");
+            closeAdminModal();
+        }
+    </script>
+</body>
+</html>
