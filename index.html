@@ -66,10 +66,10 @@
                     <p class="text-xs md:text-sm font-black text-amber-400 font-mono tracking-wide" id="countdownClockDisplay">गणना हो रही है...</p>
                 </div>
             </div>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-lg border border-emerald-500/30">लाइव पोलिंग</span>
+            <span id="timerStatusBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-lg border border-emerald-500/30">लाइव पोलिंग</span>
         </div>
 
-        <!-- 2. PUBLIC TURNOUT METER (मतदान प्रतिशत मीटर) -->
+        <!-- 2. PUBLIC TURNOUT METER -->
         <div class="card-3d p-4 rounded-2xl border border-emerald-100">
             <div class="flex justify-between items-center mb-1.5 text-xs font-bold">
                 <span class="text-slate-700 flex items-center"><i class="fa-solid fa-chart-pie text-emerald-600 mr-1.5"></i>पवसरा जनमत मतदान प्रतिशत</span>
@@ -80,14 +80,14 @@
             </div>
         </div>
 
-        <!-- Winner Banner (Shown when declared) -->
+        <!-- Winner Banner -->
         <div id="winnerBanner" class="hidden bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white p-6 rounded-3xl shadow-xl text-center">
             <span class="inline-block bg-white/20 backdrop-blur-sm text-white text-[11px] px-3.5 py-1 rounded-full font-bold uppercase tracking-widest mb-2">अंतिम चुनाव परिणाम</span>
             <h2 class="text-2xl md:text-3xl font-black" id="winnerText">जनमत विजेता घोषित</h2>
             <p class="text-xs text-amber-100 mt-1">पवसरा ग्रामवासियों का सर्वाधिक समर्थन प्राप्त हुआ।</p>
         </div>
 
-        <!-- Privacy Reassurance Banner -->
+        <!-- Privacy Banner -->
         <div class="card-3d p-3.5 rounded-2xl flex items-center space-x-3.5 border-l-4 border-emerald-500">
             <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg shrink-0">
                 <i class="fa-solid fa-shield-halved"></i>
@@ -106,7 +106,6 @@
             <h2 class="text-xl font-black text-slate-900">मतदाता सत्यापन</h2>
             <p class="text-xs text-slate-500 mt-0.5">मतदान हेतु अपनी पहचान सत्यापित करें</p>
 
-            <!-- Mode Switch Tabs -->
             <div class="flex p-1 bg-slate-100 rounded-2xl mt-4 border border-slate-200 text-xs font-bold">
                 <button onclick="setSearchMode('serial')" id="tabModeSerial" class="flex-1 py-2 rounded-xl bg-white text-emerald-700 shadow-sm transition">
                     1. क्रमांक (Serial No) से
@@ -116,7 +115,6 @@
                 </button>
             </div>
 
-            <!-- Search Mode 1: Serial -->
             <div id="searchBySerialSection" class="mt-4 space-y-4 text-left">
                 <div>
                     <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">मतदाता क्रमांक (1 से 3905)</label>
@@ -127,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Search Mode 2: Name + Father (WITH LIVE SUGGESTIONS & AUTO-TRANSLATE) -->
             <div id="searchByNameSection" class="hidden mt-4 space-y-3 text-left">
                 <div class="relative">
                     <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">
@@ -137,7 +134,6 @@
                         <input type="text" id="inputSearchName" oninput="handleNameInput(this.value)" placeholder="उदा. kailash या कैलाश" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
                         <button onclick="convertFieldToHindi('inputSearchName')" title="हिंदी में बदलें" class="px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border shrink-0">अ ➔ A</button>
                     </div>
-                    <!-- Live Autocomplete Dropdown -->
                     <div id="nameSuggestionsList" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y text-xs font-semibold"></div>
                 </div>
 
@@ -157,8 +153,7 @@
                 </button>
             </div>
 
-            <!-- Auto-Matched Result Card (Displays Found Serial Number Automatically!) -->
-            <div id="voterFoundBox" class="hidden mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2.5 text-left animate-fade-in">
+            <div id="voterFoundBox" class="hidden mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2.5 text-left">
                 <div class="flex justify-between items-center">
                     <span class="text-[10px] text-emerald-800 font-bold uppercase tracking-wider bg-emerald-200/70 px-2 py-0.5 rounded-md">मतदाता मिल गया</span>
                     <span id="matchedVoterSerialBadge" class="text-xs font-black text-white bg-emerald-700 px-3 py-1 rounded-lg shadow-sm">क्रमांक: #---</span>
@@ -190,11 +185,9 @@
             <div id="candidatesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- STEP 3: Success Screen with Digital Voter Slip & Viral WhatsApp Share -->
+        <!-- STEP 3: Success Screen with Digital Slip -->
         <div id="voteSuccessCard" class="hidden card-3d p-6 md:p-8 rounded-3xl text-center max-w-md mx-auto space-y-4">
-            
-            <!-- Digital Voting Slip Preview -->
-            <div class="p-5 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 text-left space-y-3 relative overflow-hidden">
+            <div class="p-5 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 text-left space-y-3">
                 <div class="flex justify-between items-center border-b border-emerald-200 pb-2">
                     <div>
                         <h4 class="text-xs font-black text-slate-800">ग्राम पंचायत पवसरा</h4>
@@ -262,11 +255,13 @@
                     </div>
                 </div>
 
+                <!-- Admin Tabs -->
                 <div class="flex space-x-2 border-b overflow-x-auto pb-2 text-xs font-bold">
                     <button onclick="switchTab('candidatesTab')" id="tabBtnCandidates" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white">उम्मीदवार</button>
                     <button onclick="switchTab('auditTab')" id="tabBtnAudit" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">सीक्रेट ऑडिट लॉग</button>
                     <button onclick="switchTab('permissionsTab')" id="tabBtnPermissions" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">लॉगिन अनुमतियाँ</button>
-                    <button onclick="switchTab('timerTab')" id="tabBtnTimer" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">टाइमर सेटिंग्स</button>
+                    <button onclick="switchTab('timerTab')" id="tabBtnTimer" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">टाइमर कंट्रोल्स</button>
+                    <button onclick="switchTab('resetTab')" id="tabBtnReset" class="px-3.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50">डेटा रीसेट (Head Only)</button>
                     <button onclick="switchTab('securityTab')" id="tabBtnSecurity" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100">पासवर्ड बदलें</button>
                 </div>
 
@@ -319,19 +314,56 @@
                     </div>
                 </div>
 
-                <!-- TAB 4: Timer Settings -->
+                <!-- TAB 4: Timer Settings & Stop Option -->
                 <div id="timerTab" class="hidden space-y-4">
-                    <div class="p-5 bg-slate-50 border rounded-2xl space-y-3">
-                        <h4 class="text-xs font-black uppercase text-slate-800">चुनाव समाप्ति का समय सेट करें</h4>
-                        <p class="text-xs text-slate-500">तय समय पूरा होने पर वोटिंग अपने आप रुक जाएगी।</p>
-                        <div class="flex gap-2">
-                            <input type="datetime-local" id="timerDateTimeInput" class="w-full px-3 py-2 text-xs border rounded-xl">
-                            <button onclick="saveTimerSetting()" class="btn-3d-green text-white text-xs font-bold px-5 py-2 rounded-xl">सेव करें</button>
+                    <div class="p-5 bg-slate-50 border rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-black uppercase text-slate-800">उल्टी गिनती टाइमर कंट्रोल्स</h4>
+                            <button onclick="toggleTimerRunning()" id="timerToggleActionBtn" class="text-xs font-bold px-4 py-2 rounded-xl bg-rose-600 text-white shadow">टाइमर रोकें (Stop Timer)</button>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">नया समाप्ति समय सेट करें:</label>
+                            <div class="flex gap-2">
+                                <input type="datetime-local" id="timerDateTimeInput" class="w-full px-3 py-2 text-xs border rounded-xl">
+                                <button onclick="saveTimerSetting()" class="btn-3d-green text-white text-xs font-bold px-5 py-2 rounded-xl shrink-0">सेव करें</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 5: Password Settings -->
+                <!-- TAB 5: DANGER ZONE - RESET CONTROLS (HEAD ONLY) -->
+                <div id="resetTab" class="hidden space-y-4">
+                    <div class="p-5 bg-rose-50 border border-rose-200 rounded-2xl space-y-4">
+                        <div>
+                            <h4 class="text-xs font-black uppercase text-rose-800 flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>डेटा रीसेट कंट्रोल्स (केवल Admin Head के लिए)
+                            </h4>
+                            <p class="text-[11px] text-rose-600 mt-0.5">यहाँ से आप पड़े हुए वोटों को शून्य कर सकते हैं या घोषित नतीजे को वापस ले सकते हैं।</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                            <!-- Reset Votes -->
+                            <div class="bg-white p-4 rounded-xl border border-rose-200 space-y-2">
+                                <h5 class="text-xs font-extrabold text-slate-800">1. सभी वोट रीसेट करें (Zero Votes)</h5>
+                                <p class="text-[10px] text-slate-500">सारे पड़े हुए वोट शून्य हो जाएँगे और सभी 3905 वोटर दोबारा वोट डाल सकेंगे।</p>
+                                <button onclick="resetAllVotesAction()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition shadow">
+                                    सभी वोट रीसेट करें (Reset All)
+                                </button>
+                            </div>
+
+                            <!-- Reset Declared Winner -->
+                            <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-2">
+                                <h5 class="text-xs font-extrabold text-slate-800">2. परिणाम वापस लें (Reset Result)</h5>
+                                <p class="text-[10px] text-slate-500">घोषित किया गया विनर बैनर होमपेज से हट जाएगा और चुनाव फिर से सामान्य हो जाएगा।</p>
+                                <button onclick="resetDeclaredResultAction()" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition shadow">
+                                    घोषित नतीजा रीसेट करें
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 6: Password Settings -->
                 <div id="securityTab" class="hidden space-y-4">
                     <div class="p-5 bg-slate-50 border rounded-2xl space-y-3">
                         <div class="flex gap-2"><input type="text" id="newHeadPass" placeholder="Admin Head नया पासवर्ड" class="w-full px-3 py-2 text-xs border rounded-xl"><button onclick="updatePassword('head')" class="btn-3d-green text-white text-xs font-bold px-4 py-2 rounded-xl">सेव</button></div>
@@ -350,11 +382,12 @@
 
     <!-- App Logic -->
     <script>
-        let appState = JSON.parse(localStorage.getItem('pavsara_app_state_v7')) || {
+        let appState = JSON.parse(localStorage.getItem('pavsara_app_state_v8')) || {
             isVotingActive: true,
             winnerDeclared: false,
             winnerAnnouncement: "",
-            electionEndTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Default 24 hrs
+            isTimerStopped: false,
+            electionEndTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
             candidates: [
                 { id: 1, name: "Peeyush Chauhan" },
                 { id: 2, name: "Rajendra Chauhan" },
@@ -373,7 +406,7 @@
         let tempVoter = null;
         let loggedRole = null;
 
-        function saveState() { localStorage.setItem('pavsara_app_state_v7', JSON.stringify(appState)); }
+        function saveState() { localStorage.setItem('pavsara_app_state_v8', JSON.stringify(appState)); }
 
         window.onload = function() {
             renderPublicCandidates();
@@ -382,7 +415,7 @@
             startCountdownTimer();
         };
 
-        // Turnout Meter Update
+        // Turnout Meter
         function updateTurnoutMeter() {
             const cast = appState.votes.length;
             const pct = ((cast / 3905) * 100).toFixed(1);
@@ -390,15 +423,26 @@
             document.getElementById('publicTurnoutBar').style.width = pct + '%';
         }
 
-        // Live Countdown Clock
+        // Live Countdown Clock with Stop Feature
         function startCountdownTimer() {
             function updateClock() {
+                const badge = document.getElementById('timerStatusBadge');
+                if (appState.isTimerStopped) {
+                    document.getElementById('countdownClockDisplay').innerText = "टाइमर रोका गया है (Paused)";
+                    badge.innerText = "टाइमर रुका हुआ";
+                    badge.className = "text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-2.5 py-1 rounded-lg border border-amber-500/30";
+                    return;
+                }
+
+                badge.innerText = "लाइव पोलिंग";
+                badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-lg border border-emerald-500/30";
+
                 const now = new Date().getTime();
                 const end = new Date(appState.electionEndTime).getTime();
                 const diff = end - now;
 
                 if (diff <= 0) {
-                    document.getElementById('countdownClockDisplay').innerText = "00h 00m 00s (मतदान समाप्त)";
+                    document.getElementById('countdownClockDisplay').innerText = "00h 00m 00s (समय समाप्त)";
                     if (appState.isVotingActive) {
                         appState.isVotingActive = false;
                         saveState();
@@ -417,13 +461,52 @@
             setInterval(updateClock, 1000);
         }
 
+        function toggleTimerRunning() {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
+            appState.isTimerStopped = !appState.isTimerStopped;
+            saveState();
+            refreshAdminUI();
+            alert(appState.isTimerStopped ? "टाइमर रोक दिया गया है!" : "टाइमर पुनः चालू कर दिया गया है!");
+        }
+
         function saveTimerSetting() {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
             const val = document.getElementById('timerDateTimeInput').value;
-            if(!val) return alert("कृपया वैध समय चुनें!");
+            if(!val) return alert("कृपया समय चुनें!");
             appState.electionEndTime = new Date(val).toISOString();
+            appState.isTimerStopped = false;
             appState.isVotingActive = true;
             saveState();
-            alert("नया चुनाव समय सफलतापूर्वक सेट कर दिया गया!");
+            alert("नया चुनाव समय सेट कर दिया गया!");
+        }
+
+        // RESET ACTIONS (HEAD ONLY)
+        function resetAllVotesAction() {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
+            const confirm1 = confirm("⚠️ चेतावनी: क्या आप सचमुच सभी पड़े हुए वोटों को शून्य (0) करना चाहते हैं?");
+            if(!confirm1) return;
+            const confirm2 = prompt("पुष्टि के लिए अंग्रेजी में 'RESET' टाइप करें:");
+            if(confirm2 === "RESET") {
+                appState.votes = [];
+                appState.votedSerials = {};
+                saveState();
+                updateTurnoutMeter();
+                refreshAdminUI();
+                alert("सफलतापूर्वक सभी वोट शून्य (0) कर दिए गए हैं!");
+            } else {
+                alert("रीसेट रद्द कर दिया गया।");
+            }
+        }
+
+        function resetDeclaredResultAction() {
+            if(loggedRole !== 'head') return alert("केवल Admin Head को अधिकार है!");
+            if(confirm("क्या आप घोषित चुनाव परिणाम को वापस लेना चाहते हैं?")) {
+                appState.winnerDeclared = false;
+                appState.winnerAnnouncement = "";
+                saveState();
+                renderWinnerBanner();
+                alert("घोषित नतीजा सफलतापूर्वक हटा दिया गया है!");
+            }
         }
 
         function renderWinnerBanner() {
@@ -505,7 +588,6 @@
             }
         }
 
-        // English to Hindi Transliterate
         async function convertEnglishToHindi(text) {
             if(!text || !/[a-zA-Z]/.test(text)) return text;
             try {
@@ -523,10 +605,9 @@
             const val = input.value.trim();
             if(!val) return;
             const converted = await convertEnglishToHindi(val);
-            input.value = converted; // Sets in box so user can edit it freely!
+            input.value = converted;
         }
 
-        // Live Suggestions on typing
         function handleNameInput(val) {
             const list = document.getElementById('nameSuggestionsList');
             const q = val.trim().toLowerCase();
@@ -563,7 +644,6 @@
             list.classList.remove('hidden');
         }
 
-        // Search by Name + Father
         async function lookupByNameAndFather() {
             document.getElementById('nameSuggestionsList').classList.add('hidden');
             const err = document.getElementById('voterErrorMsg');
@@ -587,14 +667,13 @@
                 return;
             }
 
-            // Auto-translate if English letters present
             if(/[a-zA-Z]/.test(nameInput) || /[a-zA-Z]/.test(fatherInput)) {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> हिंदी में बदल रहे हैं...`;
                 btn.disabled = true;
                 nameInput = await convertEnglishToHindi(nameInput);
                 fatherInput = await convertEnglishToHindi(fatherInput);
-                document.getElementById('inputSearchName').value = nameInput; // Editable
-                document.getElementById('inputSearchFather').value = fatherInput; // Editable
+                document.getElementById('inputSearchName').value = nameInput;
+                document.getElementById('inputSearchFather').value = fatherInput;
                 btn.innerHTML = `<span>रिकॉर्ड खोजें</span> <i class="fa-solid fa-magnifying-glass"></i>`;
                 btn.disabled = false;
             }
@@ -634,7 +713,6 @@
                 return;
             }
 
-            // Prominent Serial Number Auto-Display
             tempVoter = found;
             document.getElementById('matchedVoterSerialBadge').innerText = "क्रमांक: #" + found.serial;
             document.getElementById('matchedVoterName').innerText = found.name;
@@ -662,10 +740,8 @@
                 });
                 saveState();
 
-                // Fill Digital Slip details
                 document.getElementById('slipVoterName').innerText = tempVoter.name;
                 document.getElementById('slipVoterSerial').innerText = `मतदाता क्रमांक: #${tempVoter.serial}`;
-
                 updateTurnoutMeter();
 
                 document.getElementById('votingBallotCard').classList.add('hidden');
@@ -673,14 +749,12 @@
             }
         }
 
-        // WhatsApp Viral Share
         function shareOnWhatsApp() {
             const siteUrl = window.location.href;
             const text = `🗳️ मैंने ग्राम पंचायत पवसरा (बुलंदशहर) के प्रधानी जनमत सर्वेक्षण 2026 में अपना वोट डाल दिया है!\n\n🔒 यह मतदान 100% गोपनीय है।\n👉 आप भी अपना वोट यहाँ डालें:\n${siteUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // Admin Security & Controls
         function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
         function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
@@ -699,9 +773,11 @@
                 document.getElementById('adminLoginBox').classList.add('hidden');
                 document.getElementById('adminWorkspace').classList.remove('hidden');
                 document.getElementById('activeRoleBadge').innerText = r === 'head' ? 'Admin Head' : (r === 'senior' ? 'Senior Admin' : 'Junior Admin');
+                
                 const isHead = (r === 'head');
                 document.getElementById('tabBtnPermissions').classList.toggle('hidden', !isHead);
                 document.getElementById('tabBtnTimer').classList.toggle('hidden', !isHead);
+                document.getElementById('tabBtnReset').classList.toggle('hidden', !isHead);
                 document.getElementById('tabBtnSecurity').classList.toggle('hidden', !isHead);
                 refreshAdminUI();
             } else { alert("गलत पासवर्ड!"); }
@@ -714,7 +790,7 @@
         }
 
         function switchTab(t) {
-            ['candidatesTab', 'auditTab', 'permissionsTab', 'timerTab', 'securityTab'].forEach(id => {
+            ['candidatesTab', 'auditTab', 'permissionsTab', 'timerTab', 'resetTab', 'securityTab'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) el.classList.add('hidden');
             });
@@ -792,6 +868,13 @@
             document.getElementById('juniorAllowedBadge').className = jnrAllowed ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800';
             document.getElementById('toggleJuniorPermBtn').innerText = jnrAllowed ? 'अनुमति बंद करें' : 'अनुमति दें';
             document.getElementById('toggleJuniorPermBtn').className = jnrAllowed ? 'w-full text-xs font-bold py-2 rounded-xl bg-rose-600 text-white' : 'w-full text-xs font-bold py-2 rounded-xl bg-emerald-600 text-white';
+
+            // Timer Toggle Action Button text
+            const tBtn = document.getElementById('timerToggleActionBtn');
+            if(tBtn) {
+                tBtn.innerText = appState.isTimerStopped ? "टाइमर चालू करें (Resume Timer)" : "टाइमर रोकें (Stop Timer)";
+                tBtn.className = appState.isTimerStopped ? "text-xs font-bold px-4 py-2 rounded-xl bg-emerald-600 text-white shadow" : "text-xs font-bold px-4 py-2 rounded-xl bg-rose-600 text-white shadow";
+            }
         }
 
         function addCandidateAction() {
